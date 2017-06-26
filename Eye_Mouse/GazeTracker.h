@@ -53,7 +53,7 @@ public:
 	GazeTracker();
 	~GazeTracker();
 	ReturnCode calibrateDetectionSettings();
-	ReturnCode calibrateRatio();
+	ReturnCode calibrateGazeRatio();
 	ReturnCode mouseControl();
 	void mouseControlDevTest();
 
@@ -78,8 +78,8 @@ private:
 
 	Mat retriveFrame();
 	void addBorders(Mat&);
-	void printText(Mat, string, const Point, double = DEFAULT_TEXT_SCALE, cvRGB = DEFAULT_TEXT_COLOR);
-	void displayNoDetectionWarning(Mat, const char*);
+	void printText(Mat, Text);
+	void displayNoDetectionWarning(Mat, const char*, Text, ReturnCode);
 	char getKey(unsigned int = 1);
 
 	UserIdentification detectUserIdentification(Mat, bool = false, bool = false);

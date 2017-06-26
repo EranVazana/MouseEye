@@ -66,8 +66,8 @@
     <ClCompile Include="FPSCounter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Media.cpp">
-      <Filter>Constants</Filter>
+    <ClCompile Include="Text.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -125,8 +125,11 @@
     <ClInclude Include="Media.h">
       <Filter>Constants</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
+    <ClInclude Include="Text.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>_Resource Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

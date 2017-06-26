@@ -3,6 +3,8 @@
 #include <string>
 #include <time.h>
 
+#include "Text.h"
+
 using namespace std;
 
 //-Class used to measure the frames per second values when detecting the user's face values.
@@ -13,9 +15,12 @@ public:
 
 	void start();
 	unsigned int getFPS();
-	string getFpsString();
+	Text getFpsText();
 
 private:
+	#define TEXT_INTRO "FPS: "
+	#define TEXT_LOCATION Point(5,15)
+
 	bool toReset();
 
 	time_t _start, _end;

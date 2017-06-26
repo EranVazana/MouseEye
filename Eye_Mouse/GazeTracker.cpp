@@ -189,14 +189,11 @@ ReturnCode GazeTracker::calibrateDetectionSettings() {
 		if (current_user_identification.userWinked(EyeSide::RIGHT))
 			Desktop::MouseClickBeep();
 
-		//-Get FPS value.
-		string fps_text = FPS_INDICATION_TEXT + FpsCounter.getFpsString();
-
 		//-Print FPS and available options.
-		printText(frame, fps_text, FPS_INDICATION_TEXT_LOCATION);
-		printText(frame, OPEN_CONTROLLER_TEXT, OPEN_CONTROLLER_TEXT_LOCATION);
-		printText(frame, RESET_CONTROLLER_TEXT, RESET_CONTROLLER_TEXT_LOCATION);
-		printText(frame, CONTINUE_TEXT, CONTINUE_TEXT_LOCATION);
+		printText(frame, FpsCounter.getFpsText());
+		printText(frame, OPEN_CONTROLLER_TEXT);
+		printText(frame, RESET_CONTROLLER_TEXT);
+		printText(frame, CONTINUE_TEXT);
 
 		imshow(SETTINGS_CALIBRATION_MAIN_WINDOW_NAME, frame);
 
@@ -230,7 +227,7 @@ ReturnCode GazeTracker::calibrateDetectionSettings() {
 }
 
 //-Function used to let the user calibrate the eye movment to mouse position ratio.
-ReturnCode GazeTracker::calibrateRatio(){
+ReturnCode GazeTracker::calibrateGazeRatio(){
 	//-Initialize the window.
 	HWND ratio_calibration_window = initFullscreenWindow(RATIO_CALIBRATION_MAIN_WINDOW_NAME);
 
@@ -249,7 +246,7 @@ ReturnCode GazeTracker::calibrateRatio(){
 
 		UserIdentification current_user_identification = detectUserIdentification(frame, true, false);
 		if (!current_user_identification.foundEyes()) {
-			displayNoDetectionWarning(frame, RATIO_CALIBRATION_MAIN_WINDOW_NAME);
+			displayNoDetectionWarning(frame, RATIO_CALIBRATION_MAIN_WINDOW_NAME, GO_BACK_RATIO_TEXT, DETECTION_SETTINGS_CALIBRATION);
 			continue;
 		}
 
@@ -261,16 +258,16 @@ ReturnCode GazeTracker::calibrateRatio(){
 		circle(frame, _base_screen_calibration_points[points_array_index], calibration_point_size / 2, secondery_color, FILLED);
 
 		//-Print which eye will calibrate.
-		printText(frame, CALIBRATED_EYE_TEXT, CALIBRATED_EYE_TEXT_LOCATION, CALIBRATED_EYE_SCALE, CV_BLACK);
-		_eye_to_calibrate ? printText(frame, RIGHT_EYE_TEXT, CURRENT_CALIBRATED_EYE_TEXT_LOCATION, CALIBRATED_EYE_SCALE, CV_RED) : 
-							printText(frame, LEFT_EYE_TEXT, CURRENT_CALIBRATED_EYE_TEXT_LOCATION, CALIBRATED_EYE_SCALE, CV_CYAN);
+		printText(frame, CALIBRATED_EYE_TEXT);
+		_eye_to_calibrate ? printText(frame, RIGHT_EYE_TEXT) : 
+							printText(frame, LEFT_EYE_TEXT);
 
 		//-Print switch calbrated eye notification.
 		if (points_array_index == 0)
-			printText(frame, CHANGE_CALIBRATED_EYE_TEXT, CHANGE_CALIBRATED_EYE_TEXT_LOCATION, DEFAULT_TEXT_SCALE, CV_BLACK);
+			printText(frame, CHANGE_CALIBRATED_EYE_TEXT);
 
 		//-Print 'Go back' notification.
-		printText(frame, GO_BACK_TEXT, GO_BACK_TEXT_LOCATION, DEFAULT_TEXT_SCALE, CV_BLACK);
+		printText(frame, GO_BACK_RATIO_TEXT);
 
 		imshow(RATIO_CALIBRATION_MAIN_WINDOW_NAME, frame);
 
@@ -330,7 +327,7 @@ ReturnCode GazeTracker::mouseControl(){
 
 		UserIdentification current_user_identification = detectUserIdentification(frame);
 		if (!current_user_identification.foundEyes()) {
-			displayNoDetectionWarning(frame, SCREEN_ZOOM_WINDOW_NAME);
+			displayNoDetectionWarning(frame, SCREEN_ZOOM_WINDOW_NAME, GO_BACK_MOUSE_CONTROL_TEXT, GAZE_CALIBRATION);
 			continue;
 		}
 
@@ -394,7 +391,7 @@ void GazeTracker::mouseControlDevTest() {
 
 		UserIdentification current_user_identification = detectUserIdentification(frame, true, false);
 		if (!current_user_identification.foundEyes()) {
-			displayNoDetectionWarning(frame, MOUSE_TESTING_WINDOW_NAME);
+			displayNoDetectionWarning(frame, MOUSE_TESTING_WINDOW_NAME, GO_BACK_MOUSE_CONTROL_TEXT, GAZE_CALIBRATION);
 			continue;
 		}
 
@@ -442,20 +439,24 @@ void GazeTracker::addBorders(Mat &frame) {
 // Input: Frame from the capture device, text, location(Point).
 // Optional Input: Color, scaling size.
 //-Print text on a frame.
-void GazeTracker::printText(Mat frame, string text, const Point location, double font_scale, cvRGB color) {
-	putText(frame, text, location, FONT_HERSHEY_TRIPLEX, font_scale, color, 1, CV_AA);
+void GazeTracker::printText(Mat frame, Text text) {
+	putText(frame, text._content, text._location, TEXT_FONT, text._scale, text._color, TEXT_THICKNESS, TEXT_LINETYPE);
 }
 
 // Input: Frame from the capture device, window name.
 //-Display a frame with a warning about the detection of the eyes.
-void GazeTracker::displayNoDetectionWarning(Mat frame, const char* window_name) {
+void GazeTracker::displayNoDetectionWarning(Mat frame, const char* window_name, Text go_back_text, ReturnCode return_code) {
 	addBorders(frame);
 
-	printText(frame, NO_EYE_WARNING_TEXT, NO_EYE_WARNING_TEXT_LOCATION, 1.5);
+	printText(frame, go_back_text);
 
 	imshow(window_name, frame);
-	if (getKey() == QUIT)
+
+	char key = getKey();
+	if (key == QUIT)
 		proceed(APPLICATION_EXIT);
+	else if (key == BACK)
+		proceed(return_code);
 }
 
 // Input: Delay time between frames.
@@ -580,7 +581,7 @@ UserIdentification GazeTracker::detectUserIdentification(Mat src, bool to_draw, 
 	}
 
 	//-Clear windows if an eye wasn't found.
-	if (right_eye.isEmpty() || left_eye.isEmpty() && show_process) {
+	if ((right_eye.isEmpty() || left_eye.isEmpty()) && show_process) {
 		if (right_eye.isEmpty()) {
 			imshow(RIGHT_EYE_PREVIEW_WINDOW_NAME, Media::_no_eye_image);
 			imshow(RIGHT_EYE_THRESHED_PREVIEW_WINDOW_NAME, Media::_no_eye_image);

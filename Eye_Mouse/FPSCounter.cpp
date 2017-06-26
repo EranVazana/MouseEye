@@ -32,10 +32,11 @@ unsigned int FPSCounter::getFPS() {
 	return (unsigned int)fps;
 }
 
-// Output: number of frames passed since began counting as a string value.
-//-ToString function for getFPS.
-string FPSCounter::getFpsString() {
-	return to_string(getFPS());
+// Output: Text object of the fps value.
+Text FPSCounter::getFpsText() {
+	string content = TEXT_INTRO + to_string(getFPS());
+
+	return Text(content, TEXT_LOCATION);
 }
 
 // Output: True if needed to reset the frame counter, False otherwise.
