@@ -140,17 +140,30 @@ void Desktop::cursorLeftClick() {
 	SendInput(3, Inputs, sizeof(INPUT));
 }
 
-//-Make a beep sound.
-void Desktop::MouseClickBeep() {
-	//-Call in a new thread for little to no drops in the frame rate.
-	thread beep_thread(Desktop::performBeep);
-	beep_thread.detach();
+// Input: Name of the window.
+// Output: Handle of the window.
+//-Gets the handle(HWND) of the window.
+HWND Desktop::GetWindowHWND(const char* window_name) {
+	return FindWindow(NULL, window_name);
 }
 
 // Input: Name of the window.
 //-Set the window icon to the program icon.
-void Desktop::setIcon(const char* window_name) {
-	SendMessage(FindWindow(NULL,window_name), WM_SETICON, ICON_SMALL, (LPARAM)Media::_program_icon);
+void Desktop::SetIcon(const char* window_name) {
+	SetIcon(GetWindowHWND(window_name));
+}
+
+// Input: Handle of the window.
+//-Set the window icon to the program icon.
+void  Desktop::SetIcon(HWND window_hwnd) {
+	SendMessage(window_hwnd, WM_SETICON, ICON_SMALL, (LPARAM)Media::_program_icon);
+}
+
+//-Make a beep sound.
+void Desktop::MouseClickBeep() {
+	//-Call in a new thread for little to no drops in the frame rate.
+	thread beep_thread(Desktop::PerformBeep);
+	beep_thread.detach();
 }
 
 //-Make an error sound.
@@ -159,6 +172,6 @@ void Desktop::ErrorSound() {
 }
 
 //-Perform the beep sound.
-void Desktop::performBeep() {
+void Desktop::PerformBeep() {
 	Beep(1500, 100);
 }

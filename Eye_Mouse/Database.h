@@ -5,8 +5,6 @@
 #include <Windows.h>
 #include "sqlite3.h"
 
-#include "Errors_And_Warnings.h"
-
 using namespace std;
 
 //-Constants vars for the database.
@@ -40,7 +38,7 @@ public:
 	void changeSetting(string ,int);
 
 private:
-	#define DATABASE_NAME "EyeMouseDB.db"
+	#define DATABASE_NAME "MousEyeDB.db"
 
 	typedef pair<string, int> Setting;
 
@@ -52,6 +50,26 @@ private:
 	void executeCommand(string, int(*)(void*, int, char**, char**) = nullptr);
 	static int callbackSetting(void* ,int ,char** ,char**);
 
-	char* getZErrMsg();
-	char* getCustomMsg(string);
+	//======================================================================
+	//-Custom exceptions:
+
+	#define DATABASE_ERROR_MESSAGE_INTRO "--(!)An Error occurred in Database: "
+	class CannotOpenDatabaseException : public exception {
+		virtual const char* what() const throw() {
+			return "--(!)An Error occurred in Database: Cannot open the Database.";
+		}
+	};
+
+	class SqlException : public exception {
+	public:
+		SqlException(string what) {
+			_what = what;
+		}
+		virtual const char* what() const throw() {
+			return (DATABASE_ERROR_MESSAGE_INTRO + _what).c_str();
+		}
+	private:
+		string _what;
+	};
+
 };

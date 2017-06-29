@@ -5,8 +5,10 @@
 
 #include <opencv2\opencv.hpp>
 
+#include "Desktop.h"
 #include "Windows_Settings.h"
-#include "Errors_And_Warnings.h"
+
+class Desktop;
 
 using namespace std;
 using namespace cv;
@@ -35,4 +37,13 @@ private:
 	HWND _window_hwnd;
 
 	Rect _area_values;
+
+	//======================================================================
+	//-Custom exceptions:
+
+	class ZoomAreaGUISetupException : public exception {
+		virtual const char* what() const throw() {
+			return "--(!)Failed to setup the keyboard listner.";
+		}
+	};
 };

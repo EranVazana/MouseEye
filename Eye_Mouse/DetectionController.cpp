@@ -32,7 +32,7 @@ void DetectionController::open() {
 	namedWindow(CONTROLLER_WINDOW_NAME);
 	resizeWindow(CONTROLLER_WINDOW_NAME, CONTROLLER_WINDOW_SIZE.width, CONTROLLER_WINDOW_SIZE.height);
 	moveWindow(CONTROLLER_WINDOW_NAME, CONTROLLER_WINDOW_LOCATION.x, CONTROLLER_WINDOW_LOCATION.y);
-	Desktop::setIcon(CONTROLLER_WINDOW_NAME);
+	Desktop::SetIcon(CONTROLLER_WINDOW_NAME);
 
 	//-Create a trackbar for every setting.
 	createTrackbar(BRIGHTNESS_TEXT, CONTROLLER_WINDOW_NAME, &_brightness, BRIGHTNESS_MAX);

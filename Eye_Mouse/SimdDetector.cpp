@@ -6,11 +6,11 @@
 SimdDetector::SimdDetector() {
 	//-Load the face cascade.
 	if (!_face_detector.Load(FACE_CASCADE_NAME))
-		throw exception(FACE_CASCADE_LOAD_ERROR);
+		throw FaceCascadeInitException();
 
 	//-Load the eyes cascade.
 	if (!_eyes_detector.Load(EYES_CASCADE_NAME))
-		throw exception(EYE_CASCADE_LOAD_ERROR);
+		throw EyesCascadeInitException();
 }
 
 //-Destructor.

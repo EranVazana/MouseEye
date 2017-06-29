@@ -39,7 +39,7 @@ void KeyboardHook::track() {
 void KeyboardHook::listen() {
 	//-Init the KeyboardHook.
 	if (!(_hook = SetWindowsHookEx(WH_KEYBOARD_LL, HookCallback, NULL, NULL)))
-		throw exception(HOOK_SETUP_ERROR);
+		throw HookSetupException();
 
 	//-Listen for keyboard's input.
 	LPMSG Msg{ NULL };

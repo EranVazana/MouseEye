@@ -1,9 +1,9 @@
 ﻿#include "GazeTracker.h"
-#include "Console.h"
+#include "ModifiedConsole.h"
 
 //-Main application function.
-int main(unsigned int argc, const char** argv) {
-	Console::HideConsole();
+int main(const unsigned int argc, const char** argv) {
+	ModifiedConsole::DestroyDefaultConsole();
 
 	try {
 		GazeTracker gaze_tracker;
@@ -23,15 +23,14 @@ int main(unsigned int argc, const char** argv) {
 					break;
 			}
 	}
-	catch (const exception& exception_from_gazeTracker){
-		Console::ShowConsole();
-		Console::HideConsoleCursor();
+	catch (const exception& exception_from_GazeTracker){
+		ModifiedConsole* _modifed_console = new ModifiedConsole();
 
 		Desktop::ErrorSound();
-		Console::Print(exception_from_gazeTracker.what());
+		_modifed_console->Print(exception_from_GazeTracker.what());
 
 		this_thread::sleep_for(chrono::milliseconds(1500));
-		Console::WaitForKeyPress();
+		_modifed_console->WaitForKeyPress();
 
 		return -1;
 	}

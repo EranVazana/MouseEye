@@ -21,8 +21,6 @@ private:
 	#define TEXT_INTRO "FPS: "
 	#define TEXT_LOCATION Point(5,15)
 
-	bool toReset();
-
 	time_t _start, _end;
-	__int64 _frames_counter;
+	unsigned __int64 _frames_counter;
 };

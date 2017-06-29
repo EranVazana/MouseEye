@@ -9,8 +9,6 @@
 #include "Simd/SimdDetection.hpp"
 #include "Simd/SimdDrawing.hpp"
 
-#include "Errors_And_Warnings.h"
-
 using namespace std;
 
 //-Face and eyes detection class used with Simd haar-cascades optimization.
@@ -24,7 +22,6 @@ public:
 
 	#define DETECTION_MIN_EYE_SIZE cv::Size(45, 45)
 	#define DETECTION_MAX_EYE_SIZE cv::Size(70, 70)
-
 
 	SimdDetector();
 	~SimdDetector();
@@ -45,4 +42,19 @@ private:
 	typedef Simd::Detection<Simd::Allocator> Detector;
 	Detector _face_detector;
 	Detector _eyes_detector;
+
+	//======================================================================
+	//-Custom exceptions:
+
+	class FaceCascadeInitException : public exception {
+		virtual const char* what() const throw() {
+			return "--(!)An Error occurred while loading face cascade.";
+		}
+	};
+
+	class EyesCascadeInitException : public exception {
+		virtual const char* what() const throw() {
+			return "--(!)An Error occurred while loading eyes cascade.";
+		}
+	};
 };

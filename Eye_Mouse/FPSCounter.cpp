@@ -10,7 +10,7 @@ FPSCounter::~FPSCounter() {
 
 }
 
-//-Start calculating frames per seconds.
+//-Start calculating the frame rate.
 void FPSCounter::start() {
 	time(&_start);
 }
@@ -20,11 +20,6 @@ void FPSCounter::start() {
 unsigned int FPSCounter::getFPS() {
 	time(&_end);
 	++_frames_counter;
-
-	if (toReset()) {
-		time(&_start);
-		_frames_counter = 0;
-	}
 
 	double sec = difftime(_end, _start);
 	double fps = _frames_counter / sec;
@@ -37,10 +32,4 @@ Text FPSCounter::getFpsText() {
 	string content = TEXT_INTRO + to_string(getFPS());
 
 	return Text(content, TEXT_LOCATION);
-}
-
-// Output: True if needed to reset the frame counter, False otherwise.
-//-Checks if the counter reached its maximum value.
-bool FPSCounter::toReset() {
-	return _frames_counter == INT64_MAX - 1;
 }

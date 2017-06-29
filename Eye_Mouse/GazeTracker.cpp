@@ -7,26 +7,16 @@ GazeTracker::GazeTracker() : _detection_controller(_db) {
 	//-Set program active value.
 	_keep_alive = true;
 
-	//-Open camera.
-	initCaptureDevice();
-
-	//-Get device resolution values.
-	_capture_device_resolusion = Resolution((unsigned int)_capture_device.get(CAP_PROP_FRAME_WIDTH), 
-											(unsigned int)_capture_device.get(CAP_PROP_FRAME_HEIGHT));
-
 	//-Init the Simd Detector.
-	_simd_detector.Init(_capture_device_resolusion);
-
-	//-Set defualt mirror value.
-	_mirror_frame = true;
+	_simd_detector.Init(_capture_device._resolution);
 
 	//-Get screen resolution values.
 	unsigned int screen_width = GetSystemMetrics(SM_CXSCREEN);
 	unsigned int screen_height = GetSystemMetrics(SM_CYSCREEN);
 
 	//-Get borders values.
-	_borders = XY_Amount((unsigned int)((screen_width - _capture_device_resolusion.width) / 2), 
-						 (unsigned int)((screen_height - _capture_device_resolusion.height) / 2));
+	_borders = XY_Amount((unsigned int)((screen_width - _capture_device._resolution.width) / 2),
+						 (unsigned int)((screen_height - _capture_device._resolution.height) / 2));
 
 	//-Set side of eye to calibrate.
 	_eye_to_calibrate = EyeSide::LEFT;
@@ -45,21 +35,6 @@ GazeTracker::GazeTracker() : _detection_controller(_db) {
 //-Destructor.
 GazeTracker::~GazeTracker() {
 	destroyAllWindows();
-	_capture_device.release();
-}
-
-//-Try opening X amount of devices until one is open.
-//-If no device was found, throw an exception to the main function.
-void GazeTracker::initCaptureDevice() {
-	for (unsigned int device = 0; device < MAX_DEVICES_NUMBER; ++device) {
-		_capture_device.open(device);
-		if (_capture_device.isOpened())
-			return;
-		_capture_device.release();
-	}
-
-	//-Throw exception if no device is open.
-	throw exception(CANNOT_OPEN_CAPTURE_DEVICE);
 }
 
 //-Initialize the screen gaze areas.
@@ -75,21 +50,14 @@ void GazeTracker::initGazeAreas() {
 			_screen_gaze_areas[i][j] = Rect(j * area_width, i * area_height, area_width, area_height);
 }
 
-// Input: Name of the window.
-// Output: Handle of the window.
-//-Gets the handle(HWND) of the window.
-HWND GazeTracker::getWindowHWND(const char* window_name) {
-	return FindWindow(NULL, window_name);
-}
-
 // Output: Handle of the main window.
 //-Initalize all the User detection windows.
 HWND GazeTracker::initUserDetectionWindows() {
 	//-Main camera window.
 	namedWindow(SETTINGS_CALIBRATION_MAIN_WINDOW_NAME, CV_WINDOW_NORMAL);
-	resizeWindow(SETTINGS_CALIBRATION_MAIN_WINDOW_NAME, _capture_device_resolusion.width, _capture_device_resolusion.height);
+	resizeWindow(SETTINGS_CALIBRATION_MAIN_WINDOW_NAME, _capture_device._resolution.width, _capture_device._resolution.height);
 	moveWindow(SETTINGS_CALIBRATION_MAIN_WINDOW_NAME, SETTINGS_CALIBRATION_MAIN_WINDOW_LOCATION.x, SETTINGS_CALIBRATION_MAIN_WINDOW_LOCATION.y);
-	Desktop::setIcon(SETTINGS_CALIBRATION_MAIN_WINDOW_NAME);
+	Desktop::SetIcon(SETTINGS_CALIBRATION_MAIN_WINDOW_NAME);
 
 	//-Right eye pre-threshold window.
 	namedWindow(RIGHT_EYE_PREVIEW_WINDOW_NAME, CV_WINDOW_AUTOSIZE);
@@ -112,7 +80,7 @@ HWND GazeTracker::initUserDetectionWindows() {
 	removeWindowTitlebar(LEFT_EYE_THRESHED_PREVIEW_WINDOW_NAME);
 
 	//-Return the main window handle.
-	return getWindowHWND(SETTINGS_CALIBRATION_MAIN_WINDOW_NAME);
+	return Desktop::GetWindowHWND(SETTINGS_CALIBRATION_MAIN_WINDOW_NAME);
 }
 
 // Input: Name of the window.
@@ -124,7 +92,7 @@ HWND GazeTracker::initFullscreenWindow(const char* window_name) {
 	setWindowProperty(window_name, CV_WND_PROP_FULLSCREEN, CV_WINDOW_FULLSCREEN);
 	
 	//-Get the handle of the window.
-	HWND window_hwnd = getWindowHWND(window_name);
+	HWND window_hwnd = Desktop::GetWindowHWND(window_name);
 
 	//-Delete window borders.
 	SetClassLongPtr(window_hwnd, GCLP_HBRBACKGROUND, (LONG)CreateSolidBrush(RGB(0, 0, 0)));
@@ -137,7 +105,7 @@ HWND GazeTracker::initFullscreenWindow(const char* window_name) {
 //-Remove the titlebar of the window.
 void GazeTracker::removeWindowTitlebar(const char* window_name) {
 	//-Get the window handle.
-	HWND hwnd = getWindowHWND(window_name);
+	HWND hwnd = Desktop::GetWindowHWND(window_name);
 
 	//-Change the style to be without borders and without a titlebar.
 	LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
@@ -180,7 +148,7 @@ ReturnCode GazeTracker::calibrateDetectionSettings() {
 	FpsCounter.start();
 
 	while (keepRunning(settings_preview_window)){
-		Mat frame = retriveFrame();
+		Mat frame = _capture_device.retriveFrame();
 
 		//-Get user face and eye locations and values.
 		UserIdentification current_user_identification = detectUserIdentification(frame, true, true);
@@ -205,7 +173,7 @@ ReturnCode GazeTracker::calibrateDetectionSettings() {
 				_detection_controller.open();
 				break;
 			case (MIRROR_FRAME):
-				_mirror_frame= !_mirror_frame;
+				_capture_device.mirrorFrame();
 				break;
 			case (QUIT):
 				proceed(APPLICATION_EXIT);
@@ -242,7 +210,7 @@ ReturnCode GazeTracker::calibrateGazeRatio(){
 	unsigned int points_array_index = 0;
 
 	while (keepRunning(ratio_calibration_window)){
-		Mat frame = retriveFrame();
+		Mat frame = _capture_device.retriveFrame();
 
 		UserIdentification current_user_identification = detectUserIdentification(frame, true, false);
 		if (!current_user_identification.foundEyes()) {
@@ -273,7 +241,7 @@ ReturnCode GazeTracker::calibrateGazeRatio(){
 
 		switch (getKey()){
 			case (MIRROR_FRAME):
-				_mirror_frame= !_mirror_frame;
+				_capture_device.mirrorFrame();
 				break;
 			case (SPACE):
 				//-Only let the user change eye before the first calibration.
@@ -323,7 +291,7 @@ ReturnCode GazeTracker::mouseControl(){
 	Mat zoomed_area;
 
 	while (keepRunning(screen_zoom_window)){
-		Mat frame = retriveFrame();
+		Mat frame = _capture_device.retriveFrame();
 
 		UserIdentification current_user_identification = detectUserIdentification(frame);
 		if (!current_user_identification.foundEyes()) {
@@ -387,7 +355,7 @@ void GazeTracker::mouseControlDevTest() {
 	Rect selected_area;
 
 	while (keepRunning(ratio_preview_window)) {
-		Mat frame = retriveFrame();
+		Mat frame = _capture_device.retriveFrame();
 
 		UserIdentification current_user_identification = detectUserIdentification(frame, true, false);
 		if (!current_user_identification.foundEyes()) {
@@ -411,23 +379,6 @@ void GazeTracker::mouseControlDevTest() {
 	}
 
 	closeWindow(ratio_preview_window);
-}
-
-// Output: frame from the capture device.
-//-Retriving frame from the capture device, mirror the image(unless the user told not to) for better tracking results.
-//-Throws exception if the capture device disconnected.
-Mat GazeTracker::retriveFrame(){
-	Mat new_frame;
-
-	//-Capture frame from the capture device.
-	if (!_capture_device.retrieve(new_frame))
-		throw exception(DEVICE_DISCONNECTED_ERROR);
-
-	//-Mirror the image.
-	if (_mirror_frame)
-		flip(new_frame, new_frame, 1);
-
-	return new_frame;
 }
 
 // Input: frame from the caputre device.
@@ -571,11 +522,7 @@ UserIdentification GazeTracker::detectUserIdentification(Mat src, bool to_draw, 
 		//-If a rect have been found, update eye location.
 		if (max_area != 0) {
 			Point eye_pupil(user_face.x + current_eye.x + pupil_rect.x + pupil_radius_X, user_face.y + current_eye.y + pupil_rect.y + pupil_radius_Y);
-			Point eye_center(user_face.x + current_eye.x + current_eye.width / 2, user_face.y + current_eye.y + current_eye.height / 2);
-			Point eye_corner = eye_side ? Point(user_face.x + current_eye.x, user_face.y + current_eye.y + current_eye.height / 2 + 2) : Point(user_face.x + current_eye.x + current_eye.width, user_face.y + current_eye.y + current_eye.height / 2 + 2);
-			int eye_radius = cvRound((current_eye.width + current_eye.height) * 0.25);
-
-			eye_side ? right_eye = Eye(current_eye, pupil_rect, eye_pupil, eye_center, eye_corner, eye_radius, eye_side) : left_eye = Eye(current_eye, pupil_rect, eye_pupil, eye_center, eye_corner, eye_radius, eye_side);
+			eye_side ? right_eye = Eye(current_eye, eye_pupil, eye_side) : left_eye = Eye(current_eye, eye_pupil, eye_side);
 		}
 
 	}
@@ -657,7 +604,7 @@ Point GazeTracker::getEyePovAvgPoint() {
 	unsigned int successful_iterations = 0;
 
 	for (unsigned int iteration = 0; iteration < AVG_ITERATION_NUMBER; ++iteration) {
-		Mat frame = retriveFrame();
+		Mat frame = _capture_device.retriveFrame();
 
 		UserIdentification current_user_identification = detectUserIdentification(frame, false, false);
 		if (!current_user_identification.foundEyes())

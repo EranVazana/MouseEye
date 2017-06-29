@@ -76,3 +76,21 @@ bool UserIdentification::userBlinked(UserIdentification& pirior){
 Point UserIdentification::getFaceCenter() {
 	return Point(_face.x + (_face.width / 2), _face.y + (_face.height / 2));
 }
+
+// Input: ID of which eye center to return.
+// Output: Center of the wished eye.
+Point UserIdentification::getEyeCenter(EyeSide eye_side) {
+	return eye_side ? getEyeCenter(_rightEye._eye_rect) : getEyeCenter(_leftEye._eye_rect);
+}
+
+// Input: Rect of the eye.
+// Output: Center of the wished eye.
+Point UserIdentification::getEyeCenter(Rect eye_rect) {
+	return Point(_face.x + eye_rect.x + eye_rect.width / 2, _face.y + eye_rect.y + eye_rect.height / 2);
+}
+
+// Input: ID of which eye corner to return
+// Output: Corner of the wished eye.
+Point UserIdentification::getEyeCorner(EyeSide eye_side) {
+	return eye_side ? Point(_face.x + _rightEye._eye_rect.x, _face.y + _rightEye._eye_rect.y + _rightEye._eye_rect.height / 2) : Point(_face.x + _leftEye._eye_rect.x + _leftEye._eye_rect.width, _face.y + _leftEye._eye_rect.y + _leftEye._eye_rect.height / 2);
+}

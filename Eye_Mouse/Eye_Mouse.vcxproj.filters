@@ -24,9 +24,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Console.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CV_OperatorOverloading.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -69,6 +66,12 @@
     <ClCompile Include="Text.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ModifiedConsole.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CaptureDevice.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GazeTracker.h">
@@ -81,9 +84,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CV_OperatorOverloading.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Console.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="UserIdentification.h">
@@ -100,9 +100,6 @@
     </ClInclude>
     <ClInclude Include="KeyboardHook.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Errors_And_Warnings.h">
-      <Filter>Constants</Filter>
     </ClInclude>
     <ClInclude Include="Texts.h">
       <Filter>Constants</Filter>
@@ -130,6 +127,12 @@
     </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>_Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ModifiedConsole.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CaptureDevice.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -4,8 +4,6 @@
 #include <list>
 #include <algorithm>
 
-#include "Errors_And_Warnings.h"
-
 using namespace std;
 
 //-All available key option for the hook.
@@ -40,4 +38,13 @@ private:
 	CombinationKeys _combination_keys;
 	bool* _flag;
 	bool _value_to_change;
+
+	//======================================================================
+	//-Custom exceptions:
+
+	class HookSetupException : public exception {
+		virtual const char* what() const throw() {
+			return "--(!) An Error occurred while opening the Area Selection GUI.";
+		}
+	};
 };

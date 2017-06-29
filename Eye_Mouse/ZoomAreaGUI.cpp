@@ -11,7 +11,7 @@ ZoomAreaGUI::ZoomAreaGUI(Rect area_values) {
 
 //-Destructor.
 ZoomAreaGUI::~ZoomAreaGUI() {
-	TerminateProcess(_window_process, 1);
+	TerminateProcess(_window_process, 0);
 }
 
 // Input: Area values.
@@ -32,7 +32,7 @@ void ZoomAreaGUI::activate() {
 
 	//-Open the GUI, Throw exception if an error occoured.
 	if (!ShellExecuteEx(&shellExInfo))
-		throw exception(ZOOM_AREA_GUI_SETUP_ERROR);
+		throw ZoomAreaGUISetupException();
 
 	GetProcessId(shellExInfo.hProcess);
 	_window_process = shellExInfo.hProcess;
@@ -41,7 +41,7 @@ void ZoomAreaGUI::activate() {
 
 	//-Wait for window to open.
 	do {
-		_window_hwnd = FindWindow(NULL, ZOOM_AREA_GUI_WINDOW_NAME);
+		_window_hwnd = Desktop::GetWindowHWND(ZOOM_AREA_GUI_WINDOW_NAME);
 		this_thread::sleep_for(chrono::milliseconds(20));
 	} while (!IsWindowVisible(_window_hwnd));
 }

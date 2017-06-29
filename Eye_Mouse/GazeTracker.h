@@ -13,6 +13,9 @@
 #include "opencv2/videoio.hpp"
 #include "opencv2/imgproc.hpp"
 
+//-CaptureDevice class.
+#include "CaptureDevice.h"
+
 //-Media class.
 #include "Media.h"
 
@@ -38,7 +41,6 @@
 #include "CV_OperatorOverloading.h"
 
 //-Constant variables.
-#include "Errors_And_Warnings.h"
 #include "Windows_Settings.h"
 #include "Texts.h"
 
@@ -64,10 +66,8 @@ private:
 	#define AREAS_PER_ROW 5
 	typedef array<array<Rect, AREAS_PER_ROW>, AREAS_PER_ROW> GazeAreas;
 
-	void initCaptureDevice();
 	void initGazeAreas();
 
-	HWND getWindowHWND(const char*);
 	HWND initUserDetectionWindows();
 	HWND initFullscreenWindow(const char*);
 	void removeWindowTitlebar(const char*);
@@ -76,7 +76,6 @@ private:
 
 	void proceed(ReturnCode);
 
-	Mat retriveFrame();
 	void addBorders(Mat&);
 	void printText(Mat, Text);
 	void displayNoDetectionWarning(Mat, const char*, Text, ReturnCode);
@@ -103,8 +102,6 @@ private:
 
 	//======================================================================
 
-	#define MAX_DEVICES_NUMBER 10
-
 	#define AVG_ITERATION_NUMBER 10
 
 	#define EXIT_COMBINATION_KEYS CombinationKeys { L_SHIFT, ESC }
@@ -114,9 +111,7 @@ private:
 	
 	Database _db;
 
-	VideoCapture _capture_device;
-	Resolution _capture_device_resolusion;
-	bool _mirror_frame;
+	CaptureDevice _capture_device;
 
 	Desktop _user_desktop;
 	XY_Amount _borders;

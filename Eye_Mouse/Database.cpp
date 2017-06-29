@@ -47,7 +47,7 @@ int Database::getSetting(string setting_name){
 	executeCommand(sqlCommand, callbackSetting);
 
 	if (_returnValue.empty())
-		throw exception(getCustomMsg(string("The setting '" + setting_name + "' wasn't found.")));
+		throw SqlException("The setting '" + setting_name + "' wasn't found.");
 
 	return stoi(_returnValue);
 }
@@ -72,42 +72,21 @@ void Database::openDatabase() {
 
 	if (rc) {
 		sqlite3_close(db);
-		throw exception(getCustomMsg(CANNOT_OPEN_DATABASE_ERROR));
+		throw CannotOpenDatabaseException();
 	}
 }
 
 // Input: Command, callback function (can be null).
-//-Execute the command and throws an exception if the command returns an error.
+//-Execute the command and throws an exception if the command throws an SqlException.
 void Database::executeCommand(string sqlCommand, int(*callback)(void*, int, char**, char**)) {
 	int rc = sqlite3_exec(db, sqlCommand.c_str(), callback, nullptr, &zErrMsg);
 
 	if (rc != SQLITE_OK)
-		throw exception(getZErrMsg());
+		throw SqlException(zErrMsg);
 }
 
 //-Callback function.
 int Database::callbackSetting(void* notUsed, int argc, char** argv, char** azCol){
-	_returnValue = string(argv[0]);
+	_returnValue = argv[0];
 	return SQLITE_OK;
-}
-
-// Output: Returns the full zErrMsg.
-char* Database::getZErrMsg() {
-	char* msg = new char[strlen(DATABASE_ERROR_MESSAGE_INTRO) + strlen(zErrMsg) + 1];
-
-	strcat(msg, DATABASE_ERROR_MESSAGE_INTRO);
-	strcat(msg, zErrMsg);
-
-	return msg;
-}
-
-// Output: Returns the full custom message.
-char* Database::getCustomMsg(string s) {
-	const char* c_string = s.c_str();
-	char* msg = new char[strlen(DATABASE_ERROR_MESSAGE_INTRO) + strlen(c_string) + 1];
-
-	strcat(msg, DATABASE_ERROR_MESSAGE_INTRO);
-	strcat(msg, c_string);
-
-	return msg;
 }

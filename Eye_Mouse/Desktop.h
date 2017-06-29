@@ -8,6 +8,8 @@
 
 #include "ZoomAreaGUI.h"
 
+class ZoomAreaGUI;
+
 using namespace cv;
 
 typedef Size Resolution;
@@ -31,7 +33,9 @@ public:
 	void initCustomCursor();
 	void restoreDefaultCursor();
 
-	static void setIcon(const char*);
+	static HWND GetWindowHWND(const char*);
+	static void SetIcon(const char*);
+	static void SetIcon(HWND);
 	static void MouseClickBeep();
 	static void ErrorSound();
 
@@ -44,7 +48,7 @@ private:
 
 	#define CUSTOM_CURSOR_FILENAME "Cursor/Selection_Cursor.cur"
 
-	static void performBeep();
+	static void PerformBeep();
 
 	BITMAPINFOHEADER  _bi;
 

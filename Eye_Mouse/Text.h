@@ -26,5 +26,4 @@ public:
 	cvRGB _color;
 
 private:
-	
 };

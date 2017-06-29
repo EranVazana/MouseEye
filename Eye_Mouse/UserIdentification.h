@@ -20,9 +20,12 @@ public:
 	bool userWinked (bool);
 
 	Point getFaceCenter();
+	Point getEyeCenter(EyeSide);
+	Point getEyeCorner(EyeSide);
 
 	Rect _face;
 	Eye _rightEye, _leftEye;
 
 private:
+	Point getEyeCenter(Rect);
 };
